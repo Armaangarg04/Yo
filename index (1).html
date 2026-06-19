@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Lovee Youuu ❤️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== Reset & base ===== */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body{
+    width:100%; height:100%; overflow-x:hidden;
+    font-family:'Quicksand', sans-serif;
+    background: linear-gradient(160deg,#ffe9f0 0%, #ffd9e6 30%, #ffc9dd 60%, #ffb8d2 100%);
+    color:#6b3550;
+  }
+  .screen{
+    min-height:100vh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    padding:30px 20px;
+  }
+  .hidden{ display:none !important; }
+
+  /* ===== Floating hearts background ===== */
+  .heart-field{
+    position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden;
+  }
+  .floating-heart{
+    position:absolute;
+    bottom:-50px;
+    font-size:24px;
+    opacity:0.8;
+    animation: floatUp linear infinite;
+    filter: drop-shadow(0 2px 4px rgba(255,105,180,0.3));
+  }
+  @keyframes floatUp{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); opacity:0; }
+    10%{ opacity:0.9; }
+    100%{ transform:translateY(-110vh) translateX(20px) rotate(360deg); opacity:0; }
+  }
+
+  /* ===== Opening Screen ===== */
+  #opening{ z-index:2; text-align:center; }
+  .opening-title{
+    font-family:'Dancing Script', cursive;
+    font-weight:700;
+    font-size:clamp(2.8rem, 9vw, 6rem);
+    color:#e0457b;
+    text-shadow: 0 2px 18px rgba(224,69,123,0.35);
+    opacity:0;
+    animation: fadeIn 1.8s ease forwards;
+    letter-spacing:1px;
+  }
+  @keyframes fadeIn{
+    from{ opacity:0; transform: translateY(20px) scale(0.96); }
+    to{ opacity:1; transform: translateY(0) scale(1); }
+  }
+  .open-btn{
+    margin-top:46px;
+    opacity:0;
+    animation: fadeIn 1.2s ease forwards;
+    animation-delay: 2.6s;
+  }
+
+  /* ===== Buttons (shared style) ===== */
+  .btn{
+    font-family:'Quicksand', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    padding:16px 38px;
+    border:none;
+    border-radius:50px;
+    cursor:pointer;
+    background: linear-gradient(135deg,#ff8fb1,#ff5c8d);
+    color:#fff;
+    box-shadow: 0 10px 25px rgba(255,92,141,0.45);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .btn:hover{ transform: translateY(-3px) scale(1.04); box-shadow: 0 14px 30px rgba(255,92,141,0.55); }
+  .btn:active{ transform: scale(0.97); }
+
+  /* ===== Letters Screen ===== */
+  #letters-screen{ z-index:2; }
+  .section-heading{
+    font-family:'Dancing Script', cursive;
+    font-size:clamp(2rem, 6vw, 3.2rem);
+    color:#d6386f;
+    margin-bottom:8px;
+    text-align:center;
+  }
+  .section-sub{
+    font-size:0.95rem;
+    color:#a4577a;
+    margin-bottom:34px;
+    text-align:center;
+  }
+  .envelopes-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(140px, 200px));
+    gap:34px 30px;
+    justify-content:center;
+  }
+  .envelope{
+    position:relative;
+    width:100%;
+    aspect-ratio: 1.4/1;
+    cursor:pointer;
+    perspective: 800px;
+    transition: transform .3s ease;
+  }
+  .envelope:hover{ transform: translateY(-6px); }
+  .envelope.opened{ pointer-events:none; }
+  .env-body{
+    position:absolute; inset:0;
+    background: linear-gradient(135deg,#fff0f5,#ffe1ec);
+    border-radius:10px;
+    box-shadow: 0 12px 24px rgba(214,56,111,0.25);
+    overflow:hidden;
+    border:2px solid #ffc2d9;
+  }
+  .env-flap{
+    position:absolute; top:0; left:0; width:100%; height:55%;
+    background: linear-gradient(135deg,#ffc2d9,#ffaecb);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top;
+    transition: transform .6s ease;
+    z-index:3;
+  }
+  .envelope.opened .env-flap{ transform: rotateX(180deg); }
+  .env-heart{
+    position:absolute; bottom:18%; left:50%; transform:translateX(-50%);
+    font-size:1.8rem; z-index:2;
+    animation: pulseHeart 1.8s ease-in-out infinite;
+  }
+  @keyframes pulseHeart{ 0%,100%{ transform:translateX(-50%) scale(1); } 50%{ transform:translateX(-50%) scale(1.18); } }
+  .env-label{
+    position:absolute; bottom:10px; left:0; right:0; text-align:center;
+    font-size:0.78rem; color:#b14a72; font-weight:600; z-index:2;
+    letter-spacing:0.5px;
+  }
+  .envelope.opened .env-heart, .envelope.opened .env-label{ opacity:0; transition:opacity .3s ease; }
+
+  /* Letter modal */
+  .letter-overlay{
+    position:fixed; inset:0; background:rgba(110,40,70,0.45);
+    display:flex; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+    opacity:0; pointer-events:none;
+    transition: opacity .35s ease;
+  }
+  .letter-overlay.show{ opacity:1; pointer-events:all; }
+  .letter-card{
+    background:#fffaf6;
+    background-image: radial-gradient(circle at top right, #fff0f5 0%, #fffaf6 60%);
+    max-width:480px; width:100%;
+    border-radius:16px;
+    padding:42px 36px;
+    box-shadow: 0 25px 60px rgba(150,40,80,0.35);
+    position:relative;
+    transform: scale(0.7) translateY(30px);
+    opacity:0;
+    transition: transform .45s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
+    border: 1px solid #ffd9e6;
+  }
+  .letter-overlay.show .letter-card{ transform: scale(1) translateY(0); opacity:1; }
+  .letter-text{
+    font-family:'Caveat', cursive;
+    font-size:1.55rem;
+    line-height:1.55;
+    color:#7a3a55;
+    white-space:pre-wrap;
+  }
+  .letter-text .typed-cursor{ opacity:0.6; }
+  .close-letter{
+    position:absolute; top:14px; right:16px;
+    background:none; border:none; font-size:1.3rem; cursor:pointer; color:#c45a82;
+  }
+  .letter-sign{
+    margin-top:18px; font-family:'Dancing Script',cursive; font-size:1.4rem; color:#d6386f; text-align:right;
+  }
+
+  .progress-dots{
+    margin-top:38px; display:flex; gap:10px; justify-content:center;
+  }
+  .dot{
+    width:12px; height:12px; border-radius:50%;
+    background:#ffd3e2; transition: background .3s ease, transform .3s ease;
+  }
+  .dot.filled{ background:#e0457b; transform:scale(1.15); }
+
+  /* ===== Proposal Screen ===== */
+  #proposal-screen{ z-index:2; text-align:center; }
+  .proposal-title{
+    font-family:'Dancing Script', cursive;
+    font-weight:700;
+    font-size:clamp(2.3rem, 7.5vw, 4.6rem);
+    color:#d6386f;
+    text-shadow:0 2px 18px rgba(224,69,123,0.3);
+    margin-bottom:50px;
+    animation: gentleBob 3s ease-in-out infinite;
+  }
+  @keyframes gentleBob{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
+
+  .buttons-row{
+    display:flex;
+    gap:26px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    position:relative;
+    min-height:90px;
+  }
+  #yes-btn{ transition: transform .35s ease, font-size .35s ease, padding .35s ease; }
+  #no-btn{
+    background: linear-gradient(135deg,#cfd8ff,#aab8f5);
+    box-shadow:0 10px 25px rgba(120,130,220,0.4);
+    position:relative;
+    transition: left .25s ease, top .25s ease, transform .25s ease;
+  }
+
+  .panda-wrap{
+    margin-top:42px;
+    display:flex; flex-direction:column; align-items:center;
+    min-height:0;
+    opacity:0; max-height:0; overflow:hidden;
+    transition: opacity .4s ease, max-height .4s ease;
+  }
+  .panda-wrap.show{ opacity:1; max-height:300px; }
+
+  /* Panda SVG container */
+  .panda-msg{
+    margin-top:14px; font-size:1rem; font-weight:600; color:#7a4ab1;
+    min-height:24px; text-align:center;
+  }
+  /* Trembling crying-face animation */
+  #pandaSvg.panda-crying #mouth{
+    transform-origin: 100px 135px;
+    animation: mouthTremble 0.55s ease-in-out infinite;
+  }
+  #pandaSvg.panda-crying #browL{ animation: browShakeL 0.7s ease-in-out infinite; }
+  #pandaSvg.panda-crying #browR{ animation: browShakeR 0.7s ease-in-out infinite; }
+  #pandaSvg.panda-crying #eyeL, #pandaSvg.panda-crying #eyeR{
+    animation: eyeSqueeze 1.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes mouthTremble{
+    0%,100%{ transform: scaleY(1) translateY(0); }
+    50%{ transform: scaleY(1.15) translateY(1px); }
+  }
+  @keyframes browShakeL{
+    0%,100%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(1.5px) rotate(-1.5deg); }
+  }
+  @keyframes browShakeR{
+    0%,100%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(1.5px) rotate(1.5deg); }
+  }
+  @keyframes eyeSqueeze{
+    0%,100%{ transform: scaleY(1); }
+    50%{ transform: scaleY(0.6); }
+  }
+
+  /* ===== Celebration Screen ===== */
+  #celebration-screen{ z-index:2; text-align:center; }
+  .glow-heart{
+    font-size:6rem;
+    animation: glowPulse 1.8s ease-in-out infinite;
+    margin-bottom:20px;
+  }
+  @keyframes glowPulse{
+    0%,100%{ text-shadow:0 0 20px #ff5c8d, 0 0 40px #ff8fb1; transform:scale(1); }
+    50%{ text-shadow:0 0 50px #ff2e6e, 0 0 90px #ff5c8d; transform:scale(1.12); }
+  }
+  .celebrate-title{
+    font-family:'Dancing Script', cursive;
+    font-weight:700;
+    font-size:clamp(1.8rem, 6vw, 3.4rem);
+    color:#d6386f;
+  }
+
+  .confetti-piece, .sparkle{
+    position:fixed; top:-20px; pointer-events:none; z-index:60;
+  }
+
+  footer.credit{
+    position:fixed; bottom:8px; width:100%; text-align:center;
+    font-size:0.72rem; color:#c98aa6; z-index:5;
+  }
+
+  @media (max-width:480px){
+    .envelopes-grid{ grid-template-columns: repeat(2, minmax(120px,160px)); gap:22px 16px; }
+    .letter-card{ padding:30px 22px; }
+  }
+
+  /* ===== Lock Screen ===== */
+  #lockScreen{ z-index:100; background: linear-gradient(160deg,#ffe9f0 0%, #ffd9e6 30%, #ffc9dd 60%, #ffb8d2 100%); }
+  .lock-card{
+    background:#fffaf6;
+    max-width:380px; width:100%;
+    border-radius:20px;
+    padding:42px 32px;
+    text-align:center;
+    box-shadow: 0 20px 50px rgba(150,40,80,0.25);
+    border:1px solid #ffd9e6;
+  }
+  .lock-icon{ font-size:2.6rem; margin-bottom:6px; }
+  .lock-title{
+    font-family:'Dancing Script', cursive;
+    font-size:1.9rem;
+    color:#d6386f;
+    margin-bottom:14px;
+  }
+  .lock-question{
+    font-size:0.98rem;
+    color:#9a4d72;
+    margin-bottom:18px;
+    font-weight:600;
+  }
+  .lock-input{
+    width:100%;
+    padding:13px 16px;
+    border-radius:14px;
+    border:2px solid #ffd3e2;
+    font-family:'Quicksand', sans-serif;
+    font-size:1rem;
+    margin-bottom:16px;
+    outline:none;
+    transition: border-color .2s ease;
+    text-align:center;
+  }
+  .lock-input:focus{ border-color:#ff8fb1; }
+  .lock-input.shake{ animation: shakeInput .4s ease; border-color:#ff6b88; }
+  @keyframes shakeInput{
+    0%,100%{ transform: translateX(0); }
+    20%{ transform: translateX(-8px); }
+    40%{ transform: translateX(8px); }
+    60%{ transform: translateX(-6px); }
+    80%{ transform: translateX(6px); }
+  }
+  .lock-error{
+    color:#e0457b;
+    font-size:0.85rem;
+    font-weight:600;
+    margin-top:6px;
+    opacity:0;
+    transition: opacity .25s ease;
+  }
+  .lock-error.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- ============ LOCK SCREEN (must answer correctly to enter) ============ -->
+<section class="screen" id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <h2 class="lock-title">This is just for you</h2>
+    <p class="lock-question" id="lockQuestion">What's the nickname I call you?</p>
+    <input type="text" id="lockInput" class="lock-input" placeholder="Type your answer..." autocomplete="off">
+    <button class="btn" id="lockSubmit">Unlock 💕</button>
+    <p class="lock-error" id="lockError">Hmm, that's not quite it... try again 🥺</p>
+  </div>
+</section>
+
+<!-- Ambient floating hearts, present across the whole page -->
+<div class="heart-field" id="heartField"></div>
+
+<!-- ============ 1. OPENING SCREEN ============ -->
+<section class="screen hidden" id="opening">
+  <h1 class="opening-title">I Lovee Youuu ❤️</h1>
+  <button class="btn open-btn hidden" id="openHeartBtn">Open My Heart 💌</button>
+</section>
+
+<!-- ============ 2. LETTERS SCREEN ============ -->
+<section class="screen hidden" id="letters-screen">
+  <h2 class="section-heading">Four Little Letters</h2>
+  <p class="section-sub">Tap each envelope to open my heart, one letter at a time 💕</p>
+
+  <div class="envelopes-grid" id="envelopesGrid">
+    <!-- Envelopes injected by JS -->
+  </div>
+
+  <div class="progress-dots" id="progressDots">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  </div>
+</section>
+
+<!-- Letter modal (shared) -->
+<div class="letter-overlay" id="letterOverlay">
+  <div class="letter-card">
+    <button class="close-letter" id="closeLetterBtn">✕</button>
+    <p class="letter-text" id="letterText"></p>
+    <p class="letter-sign">— Forever Yours 💗</p>
+  </div>
+</div>
+
+<!-- ============ 3 & 4. PROPOSAL SCREEN ============ -->
+<section class="screen hidden" id="proposal-screen">
+  <h2 class="proposal-title">Will You Marry Mee? 💍❤️</h2>
+
+  <div class="buttons-row" id="buttonsRow">
+    <button class="btn" id="yes-btn">YES ❤️</button>
+    <button class="btn" id="no-btn">NO 😢</button>
+  </div>
+
+  <div class="panda-wrap" id="pandaWrap">
+    <svg viewBox="0 0 200 170" width="160" height="136" id="pandaSvg">
+      <!-- Cute CSS/SVG panda, sad/crying expression -->
+      <ellipse cx="100" cy="100" rx="62" ry="55" fill="#fff"/>
+      <!-- ears -->
+      <circle cx="50" cy="45" r="22" fill="#3a3a3a"/>
+      <circle cx="150" cy="45" r="22" fill="#3a3a3a"/>
+      <!-- eye patches -->
+      <ellipse cx="72" cy="94" rx="20" ry="27" fill="#3a3a3a"/>
+      <ellipse cx="128" cy="94" rx="20" ry="27" fill="#3a3a3a"/>
+      <!-- furrowed sad eyebrows (angled inward/up, classic "worried" shape) -->
+      <path d="M58 74 Q70 66 84 76" stroke="#222" stroke-width="3.4" fill="none" stroke-linecap="round" id="browL"/>
+      <path d="M142 74 Q130 66 116 76" stroke="#222" stroke-width="3.4" fill="none" stroke-linecap="round" id="browR"/>
+      <!-- eyes: squeezed shut, scrunched crying shape -->
+      <path d="M64 96 Q74 104 84 96" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" id="eyeL"/>
+      <path d="M116 96 Q126 104 136 96" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" id="eyeR"/>
+      <!-- little scrunch lines beside eyes for that real crying squint -->
+      <path d="M60 88 Q56 92 58 97" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M140 88 Q144 92 142 97" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <!-- blush from crying -->
+      <ellipse cx="58" cy="116" rx="10" ry="6" fill="#ffb3c6" opacity="0.55"/>
+      <ellipse cx="142" cy="116" rx="10" ry="6" fill="#ffb3c6" opacity="0.55"/>
+      <!-- nose -->
+      <ellipse cx="100" cy="118" rx="7" ry="5" fill="#3a3a3a"/>
+      <!-- mouth: open, wobbly, trembling sad/crying shape -->
+      <path d="M86 132 Q93 142 100 133 Q107 142 114 132 Q108 138 100 138 Q92 138 86 132 Z" fill="#7a3a44" id="mouth"/>
+      <!-- tears (animated via JS adding class) -->
+      <g id="tearsL"></g>
+      <g id="tearsR"></g>
+    </svg>
+    <p class="panda-msg" id="pandaMsg">Panda is sad... 🐼😭</p>
+  </div>
+</section>
+
+<!-- ============ CELEBRATION SCREEN ============ -->
+<section class="screen hidden" id="celebration-screen">
+  <div class="glow-heart">💖</div>
+  <h2 class="celebrate-title">YAYYYY!!! ❤️❤️❤️<br>I Love Youuu Forever 💖</h2>
+</section>
+
+<footer class="credit">made with 💗 just for you</footer>
+
+<script>
+
+
+/* ---------- 0. Lock screen (edit these two lines to customize!) ---------- */
+const LOCK_QUESTION = "What's the nickname you call me?";   // <-- change the question here
+const LOCK_ANSWERS = ["babyygirll"];                       // <-- add any accepted answers here (lowercase, no spaces trimmed)
+
+document.getElementById('lockQuestion').textContent = LOCK_QUESTION;
+
+const lockScreen = document.getElementById('lockScreen');
+const lockInput = document.getElementById('lockInput');
+const lockSubmit = document.getElementById('lockSubmit');
+const lockError = document.getElementById('lockError');
+
+function tryUnlock() {
+  const value = lockInput.value.trim().toLowerCase();
+  const correct = LOCK_ANSWERS.some(ans => ans.toLowerCase() === value);
+
+  if (correct && value.length > 0) {
+    lockScreen.style.transition = 'opacity .5s ease';
+    lockScreen.style.opacity = '0';
+    setTimeout(() => {
+      lockScreen.classList.add('hidden');
+      document.getElementById('opening').classList.remove('hidden');
+      startExperience(); // kick off floating hearts + opening button timer
+    }, 480);
+  } else {
+    lockError.classList.add('show');
+    lockInput.classList.add('shake');
+    setTimeout(() => lockInput.classList.remove('shake'), 400);
+  }
+}
+
+lockSubmit.addEventListener('click', tryUnlock);
+lockInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') tryUnlock();
+});
+
+/* ---------- 1. Ambient floating hearts + opening reveal (starts only after unlock) ---------- */
+const heartField = document.getElementById('heartField');
+const heartEmojis = ['❤️','💕','💖','💗','💞'];
+
+function spawnFloatingHeart() {
+  const h = document.createElement('div');
+  h.className = 'floating-heart';
+  h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+  h.style.left = Math.random() * 100 + 'vw';
+  h.style.fontSize = (14 + Math.random() * 20) + 'px';
+  const duration = 6 + Math.random() * 6;
+  h.style.animationDuration = duration + 's';
+  heartField.appendChild(h);
+  setTimeout(() => h.remove(), duration * 1000 + 200);
+}
+
+const openHeartBtn = document.getElementById('openHeartBtn');
+
+function startExperience() {
+  setInterval(spawnFloatingHeart, 500);
+  for (let i = 0; i < 8; i++) setTimeout(spawnFloatingHeart, i * 200);
+  setTimeout(() => { openHeartBtn.classList.remove('hidden'); }, 2600);
+}
+
+openHeartBtn.addEventListener('click', () => {
+  document.getElementById('opening').classList.add('hidden');
+  document.getElementById('letters-screen').classList.remove('hidden');
+});
+
+/* ---------- 3. Letters ---------- */
+const lettersData = [
+  { title: "Letter One", text: "From the moment I met you" },
+  { title: "Letter Two", text: "You make every day brighter" },
+  { title: "Letter Three", text: "Thank you for being my happiness" },
+  { title: "Letter Four", text: "You are my favorite person in the world" }
+];
+
+let openedCount = 0;
+const totalLetters = lettersData.length;
+const envelopesGrid = document.getElementById('envelopesGrid');
+const dots = document.querySelectorAll('.dot');
+const letterOverlay = document.getElementById('letterOverlay');
+const letterTextEl = document.getElementById('letterText');
+const closeLetterBtn = document.getElementById('closeLetterBtn');
+
+// Build envelopes
+lettersData.forEach((letter, index) => {
+  const env = document.createElement('div');
+  env.className = 'envelope';
+  env.dataset.index = index;
+  env.innerHTML = `
+    <div class="env-body">
+      <div class="env-flap"></div>
+      <div class="env-heart">💌</div>
+      <div class="env-label">${letter.title}</div>
+    </div>
+  `;
+  env.addEventListener('click', () => openEnvelope(env, index));
+  envelopesGrid.appendChild(env);
+});
+
+let typewriterTimer = null;
+
+function openEnvelope(envEl, index) {
+  if (envEl.classList.contains('opened')) return;
+
+  // flap animation, then show letter modal
+  envEl.classList.add('opened');
+
+  setTimeout(() => {
+    showLetterModal(lettersData[index].text);
+
+    if (!envEl.dataset.counted) {
+      envEl.dataset.counted = "true";
+      openedCount++;
+      if (dots[index]) dots[index].classList.add('filled');
+
+      if (openedCount === totalLetters) {
+        // wait until they close the last letter, then transition
+        letterOverlay.dataset.lastLetter = "true";
+      }
+    }
+  }, 350);
+}
+
+function showLetterModal(text) {
+  clearInterval(typewriterTimer);
+  letterTextEl.textContent = '';
+  letterOverlay.classList.add('show');
+
+  // Typewriter / handwritten reveal effect
+  let i = 0;
+  typewriterTimer = setInterval(() => {
+    letterTextEl.textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(typewriterTimer);
+  }, 22);
+}
+
+function closeLetterModal() {
+  clearInterval(typewriterTimer);
+  letterOverlay.classList.remove('show');
+
+  // If this was the closing of the final letter, transition to proposal
+  if (letterOverlay.dataset.lastLetter === "true") {
+    letterOverlay.dataset.lastLetter = "false";
+    setTimeout(() => {
+      document.getElementById('letters-screen').classList.add('hidden');
+      document.getElementById('proposal-screen').classList.remove('hidden');
+    }, 400);
+  }
+}
+
+closeLetterBtn.addEventListener('click', closeLetterModal);
+letterOverlay.addEventListener('click', (e) => {
+  if (e.target === letterOverlay) closeLetterModal();
+});
+
+/* ---------- 5. YES / NO button logic ---------- */
+const yesBtn = document.getElementById('yes-btn');
+const noBtn = document.getElementById('no-btn');
+const buttonsRow = document.getElementById('buttonsRow');
+const pandaWrap = document.getElementById('pandaWrap');
+const pandaMsg = document.getElementById('pandaMsg');
+
+const funnyMessages = [
+  "Are you sure? 🥺",
+  "Really really sure? 🐼😭",
+  "Panda believes in us ❤️",
+  "Please press YES 🥹",
+  "Pandas only cry happy tears now... 🐼💧",
+  "C'mon, your heart already knows 💕"
+];
+
+let noClickCount = 0;
+let yesScale = 1;
+let tearInterval = null;
+
+noBtn.addEventListener('click', () => {
+  noClickCount++;
+
+  // Reveal crying panda (first click only triggers the reveal + starts the tear stream)
+  if (!pandaWrap.classList.contains('show')) {
+    pandaWrap.classList.add('show');
+    document.getElementById('pandaSvg').classList.add('panda-crying');
+    startTearStream();
+  }
+  addTear(); // extra burst of tears right on click, on top of the steady stream
+
+  // Cycle through funny messages
+  const msg = funnyMessages[Math.min(noClickCount - 1, funnyMessages.length - 1)];
+  pandaMsg.textContent = msg;
+
+  // Grow YES button
+  yesScale = Math.min(yesScale + 0.18, 3.2);
+  yesBtn.style.transform = `scale(${yesScale})`;
+  yesBtn.style.zIndex = 10;
+
+  // Move NO button to a random spot within the buttons row's bounding container
+  moveNoButtonAway();
+
+  // After enough attempts, disable NO entirely so only YES remains clickable
+  if (noClickCount >= funnyMessages.length) {
+    noBtn.style.pointerEvents = 'none';
+    noBtn.style.opacity = '0.4';
+    pandaMsg.textContent = "Panda believes in us ❤️ Only YES left now...";
+  }
+});
+
+function moveNoButtonAway() {
+  const rowRect = buttonsRow.getBoundingClientRect();
+  const maxX = Math.max(rowRect.width - 110, 40);
+  const maxY = 60;
+
+  const randX = (Math.random() - 0.5) * maxX;
+  const randY = (Math.random() - 0.5) * maxY;
+
+  noBtn.style.position = 'relative';
+  noBtn.style.left = randX + 'px';
+  noBtn.style.top = randY + 'px';
+}
+
+function startTearStream() {
+  if (tearInterval) return;
+  tearInterval = setInterval(() => addTear(), 480);
+}
+
+function stopTearStream() {
+  clearInterval(tearInterval);
+  tearInterval = null;
+}
+
+function addTear() {
+  // Animate a simple SVG tear drop falling from the panda's eyes,
+  // with slight randomness in size/speed/path so it reads as real tears, not a loop.
+  const tearGroups = [document.getElementById('tearsL'), document.getElementById('tearsR')];
+  const baseX = [74, 126];
+
+  tearGroups.forEach((g, i) => {
+    const startX = baseX[i] + (Math.random() * 6 - 3);
+    const tear = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+    tear.setAttribute('cx', startX);
+    tear.setAttribute('cy', '100');
+    const size = 3 + Math.random() * 1.5;
+    tear.setAttribute('rx', size * 0.7);
+    tear.setAttribute('ry', size);
+    tear.setAttribute('fill', '#8fd6ff');
+    tear.style.opacity = '0.9';
+    g.appendChild(tear);
+
+    let y = 100;
+    let x = startX;
+    const drift = (Math.random() * 2 - 1) * 0.4; // tiny sideways wobble as it rolls down the cheek
+    const speed = 3 + Math.random() * 2;
+    const fall = setInterval(() => {
+      y += speed;
+      x += drift;
+      tear.setAttribute('cy', y);
+      tear.setAttribute('cx', x);
+      tear.style.opacity = Math.max(0, 0.9 - (y - 100) / 45);
+      if (y > 148) {
+        clearInterval(fall);
+        tear.remove();
+      }
+    }, 40);
+  });
+}
+
+yesBtn.addEventListener('click', () => {
+  triggerCelebration();
+});
+
+/* ---------- 6. Celebration: confetti + sparkles + glow ---------- */
+function triggerCelebration() {
+  stopTearStream();
+  document.getElementById('proposal-screen').classList.add('hidden');
+  document.getElementById('celebration-screen').classList.remove('hidden');
+
+  launchConfetti();
+  launchSparkles();
+}
+
+const confettiColors = ['#ff8fb1','#ffd166','#a78bfa','#7fd1ff','#ff5c8d','#ffe9f0'];
+
+function launchConfetti() {
+  for (let i = 0; i < 90; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.width = (6 + Math.random() * 6) + 'px';
+      piece.style.height = (10 + Math.random() * 8) + 'px';
+      piece.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+      document.body.appendChild(piece);
+
+      const fallDuration = 2800 + Math.random() * 2200;
+      const drift = (Math.random() - 0.5) * 200;
+      piece.style.transition = `transform ${fallDuration}ms ease-in, top ${fallDuration}ms ease-in, opacity ${fallDuration}ms ease-in`;
+      piece.style.top = '-20px';
+
+      requestAnimationFrame(() => {
+        piece.style.top = '110vh';
+        piece.style.transform = `translateX(${drift}px) rotate(${720 + Math.random()*360}deg)`;
+        piece.style.opacity = '0.9';
+      });
+
+      setTimeout(() => piece.remove(), fallDuration + 300);
+    }, i * 35);
+  }
+}
+
+function launchSparkles() {
+  const sparkleEmojis = ['✨','💫','⭐'];
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      s.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.top = Math.random() * 100 + 'vh';
+      s.style.fontSize = (14 + Math.random() * 18) + 'px';
+      s.style.opacity = '0';
+      s.style.transition = 'opacity 0.6s ease, transform 1.4s ease';
+      document.body.appendChild(s);
+
+      requestAnimationFrame(() => {
+        s.style.opacity = '1';
+        s.style.transform = 'scale(1.4) translateY(-30px)';
+      });
+
+      setTimeout(() => {
+        s.style.opacity = '0';
+        setTimeout(() => s.remove(), 600);
+      }, 900);
+    }, i * 60);
+  }
+  // keep a gentle sparkle shower going for a while after the burst
+  let sparkleInterval = setInterval(() => {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    s.style.fontSize = (12 + Math.random() * 16) + 'px';
+    s.style.opacity = '0';
+    s.style.transition = 'opacity 0.6s ease, transform 1.2s ease';
+    document.body.appendChild(s);
+    requestAnimationFrame(() => {
+      s.style.opacity = '1';
+      s.style.transform = 'scale(1.3) translateY(-20px)';
+    });
+    setTimeout(() => { s.style.opacity = '0'; setTimeout(() => s.remove(), 600); }, 800);
+  }, 400);
+  setTimeout(() => clearInterval(sparkleInterval), 15000);
+}
+</script>
+</body>
+</html>
